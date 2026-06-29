@@ -40,6 +40,7 @@ These files are safe to keep in a public repository:
 | `prot_maintenance_anon_commented_en.py` | Public-safe English version with line-by-line explanations. |
 | `prot_maintenance_anon_commented_pl.py` | Public-safe Polish version with line-by-line explanations. |
 | `prot-maintenance.anonymized.example.json` | Public-safe example configuration with fake host, user, and paths. |
+| `dependency_report_generator.py` | Public-safe generator for human-readable dependency reports in English or Polish. |
 
 ## Private Operational Files
 
@@ -88,13 +89,17 @@ The Python script was then introduced to make the process repeatable:
 4. Optionally deploy with `rsync` over SSH.
 5. Optionally run remote post-deploy commands.
 
-### 4. Remote path mapping
+### 4. Report generator module
+
+A separate public-safe generator was added for the human-readable dependency report. It reads an inventory JSON and an optional outdated-cache JSON, then renders a standalone HTML report in English or Polish.
+
+### 5. Remote path mapping
 
 The private operational version can map local projects to remote production paths. In the private workflow, this was done by inspecting remote directories and application metadata such as environment names and application URLs.
 
 The public version does not include real paths or server details.
 
-### 5. Educational anonymized versions
+### 6. Educational anonymized versions
 
 The final public-safe versions were created for documentation and teaching:
 
@@ -251,6 +256,48 @@ python3 prot_maintenance_anon_commented_en.py \
   --config maintenance.config.json
 ```
 
+## Generate A Human-Readable Dependency Report
+
+`dependency_report_generator.py` turns dependency inventory data into a standalone HTML report. It supports English and Polish output.
+
+### Input files
+
+The generator expects:
+
+- an inventory JSON with a top-level `rows` list,
+- optionally, an outdated-cache JSON keyed by `project/path::npm` or `project/path::composer`.
+
+### English report
+
+```bash
+python3 dependency_report_generator.py \
+  --inventory dependency-inventory.json \
+  --outdated-cache dependency-outdated-cache.json \
+  --output dependency-report-en.html \
+  --lang en
+```
+
+### Polish report
+
+```bash
+python3 dependency_report_generator.py \
+  --inventory dependency-inventory.json \
+  --outdated-cache dependency-outdated-cache.json \
+  --output dependency-report-pl.html \
+  --lang pl
+```
+
+### Without outdated cache
+
+```bash
+python3 dependency_report_generator.py \
+  --inventory dependency-inventory.json \
+  --output dependency-report.html \
+  --lang en
+```
+
+When no outdated cache is provided, the report still explains manifests, lockfiles and dependency counts, but marks outdated data as unavailable.
+
 ## Important Risks
 
 ### `rsync --delete`
@@ -283,6 +330,7 @@ For a public repository, keep only:
 
 ```text
 README.md
+dependency_report_generator.py
 prot_maintenance_anon_commented_en.py
 prot_maintenance_anon_commented_pl.py
 prot-maintenance.anonymized.example.json
@@ -332,6 +380,7 @@ This concept was built iteratively from the following user requests:
 13. `Create a readme.html explaining how we got to this concept, what it gives the user, what must be changed and where, how to build it, and add the prompts I used. I need a beautiful description and all repository information.`
 14. `GitHub shows the HTML code instead of nicely formatted text. How to fix it?`
 15. `Do option 2, but in English. Commit README.md and remove readme.html from the repository.`
+16. `Can we create a separate Python file that generates these human-readable dependency reports in Polish or English? Update README.md because this is an interesting new module.`
 
 ## Documentation Links
 
