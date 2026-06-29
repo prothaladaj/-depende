@@ -1,0 +1,64 @@
+{
+  "_comment": "Anonimized example config. Replace fake host, user, paths and commands with real project values.",
+  "ssh": {
+    "_comment": "Connection used only when --deploy is passed and a project has deploy=true.",
+    "host": "deploy.example.com",
+    "port": 22,
+    "user": "deploy_user",
+    "identity_file": "~/.ssh/id_ed25519"
+  },
+  "projects": [
+    {
+      "_comment": "Example Laravel/PHP + npm project. enabled=true means the script may test/build it. deploy=true means it may upload when --deploy is also passed.",
+      "name": "example-backend",
+      "path": "/workspace/example-backend",
+      "enabled": true,
+      "deploy": false,
+      "remote_path": "/srv/apps/example-backend",
+      "remote_path_confidence": "high",
+      "remote_path_exists": true,
+      "test_commands": [
+        "composer test",
+        "npm test --if-present"
+      ],
+      "build_commands": [
+        "npm run build --if-present"
+      ],
+      "remote_commands": [
+        "composer install --no-dev --optimize-autoloader",
+        "php artisan migrate --force",
+        "php artisan config:cache"
+      ],
+      "excludes": [
+        ".git",
+        ".env",
+        "node_modules",
+        "storage/logs",
+        "tests",
+        "vendor"
+      ]
+    },
+    {
+      "_comment": "Example frontend-only project. remote_commands can be empty if the built files are enough.",
+      "name": "example-frontend",
+      "path": "/workspace/example-frontend",
+      "enabled": true,
+      "deploy": false,
+      "remote_path": "/srv/www/example-frontend",
+      "remote_path_confidence": "medium",
+      "remote_path_exists": true,
+      "test_commands": [
+        "npm test --if-present"
+      ],
+      "build_commands": [
+        "npm run build --if-present"
+      ],
+      "remote_commands": [],
+      "excludes": [
+        ".git",
+        ".env",
+        "node_modules"
+      ]
+    }
+  ]
+}
